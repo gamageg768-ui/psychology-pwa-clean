@@ -1,0 +1,30 @@
+{
+  "name": "MindSpace - AI Mental Wellness",
+  "short_name": "MindSpace",
+  "description": "AI-powered mental wellness companion with therapy, mood tracking, journaling, and assessments.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f0f1a",
+  "theme_color": "#6366f1",
+  "categories": ["health", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    { "name": "Mood Check-In", "url": "/mood", "description": "Log your mood" },
+    { "name": "Talk to Dr. Aria", "url": "/therapy", "description": "Start a therapy session" },
+    { "name": "Write Journal", "url": "/journal", "description": "Write a journal entry" }
+  ]
+}

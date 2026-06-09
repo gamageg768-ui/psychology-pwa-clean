@@ -1,0 +1,7 @@
+node_modules/
+.next/
+.env
+.env.local
+prisma/psychology.db
+public/sw.js
+public/workbox-*.js

@@ -1,0 +1,277 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               Int               @id @default(autoincrement())
+  name             String
+  email            String            @unique
+  createdAt        DateTime          @default(now())
+  sessions         TherapySession[]
+  moodLogs         MoodLog[]
+  journals         JournalEntry[]
+  assessments      Assessment[]
+  gratitudeEntries GratitudeEntry[]
+  sleepLogs        SleepLog[]
+  habits           Habit[]
+  thoughtRecords   ThoughtRecord[]
+  safetyPlan       SafetyPlan?
+  anonName         AnonName?
+  communityPosts   CommunityPost[]
+  groupMemberships GroupMembership[]
+  groupPosts       GroupPost[]
+  groupReplies     GroupReply[]
+  promptResponses  PromptResponse[]
+  challengeEntries ChallengeEntry[]
+  reports          ContentReport[]
+}
+
+model TherapySession {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  title       String   @default("New Session")
+  messages    String   @default("[]")
+  sessionType String   @default("general")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model MoodLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  mood      Int
+  emotions  String?
+  note      String?
+  aiInsight String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Assessment {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  assessmentType String
+  answers        String?
+  score          Float?
+  interpretation String?
+  aiReport       String?
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id])
+}
+
+model JournalEntry {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  content    String
+  aiAnalysis String?
+  themes     String?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model GratitudeEntry {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  items      String
+  reflection String?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model SleepLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  hours     Float
+  quality   Int
+  bedtime   String?
+  wakeTime  String?
+  note      String?
+  aiTip     String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Habit {
+  id        Int        @id @default(autoincrement())
+  userId    Int
+  title     String
+  emoji     String     @default("✅")
+  frequency String     @default("daily")
+  createdAt DateTime   @default(now())
+  logs      HabitLog[]
+  user      User       @relation(fields: [userId], references: [id])
+}
+
+model HabitLog {
+  id      Int    @id @default(autoincrement())
+  habitId Int
+  date    String
+  habit   Habit  @relation(fields: [habitId], references: [id])
+}
+
+model ThoughtRecord {
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  situation        String
+  automaticThought String
+  emotion          String
+  evidenceFor      String
+  evidenceAgainst  String
+  balancedThought  String
+  aiReframe        String?
+  createdAt        DateTime @default(now())
+  user             User     @relation(fields: [userId], references: [id])
+}
+
+model SafetyPlan {
+  id                   Int      @id @default(autoincrement())
+  userId               Int      @unique
+  warningSigns         String
+  copingStrategies     String
+  supportContacts      String
+  professionalContacts String
+  updatedAt            DateTime @updatedAt
+  user                 User     @relation(fields: [userId], references: [id])
+}
+
+model AnonName {
+  id     Int    @id @default(autoincrement())
+  userId Int    @unique
+  name   String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model CommunityPost {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  content     String
+  postType    String
+  mood        Int?
+  contentWarn String?
+  url         String?
+  reactions   String   @default("{}")
+  isMuted     Boolean  @default(false)
+  reports     Int      @default(0)
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model SupportGroup {
+  id          Int               @id @default(autoincrement())
+  name        String
+  emoji       String
+  description String
+  category    String
+  memberCount Int               @default(0)
+  memberships GroupMembership[]
+  posts       GroupPost[]
+}
+
+model GroupMembership {
+  id       Int          @id @default(autoincrement())
+  userId   Int
+  groupId  Int
+  joinedAt DateTime     @default(now())
+  user     User         @relation(fields: [userId], references: [id])
+  group    SupportGroup @relation(fields: [groupId], references: [id])
+
+  @@unique([userId, groupId])
+}
+
+model GroupPost {
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  groupId     Int
+  content     String
+  contentWarn String?
+  reactions   String       @default("{}")
+  isMuted     Boolean      @default(false)
+  reports     Int          @default(0)
+  createdAt   DateTime     @default(now())
+  user        User         @relation(fields: [userId], references: [id])
+  group       SupportGroup @relation(fields: [groupId], references: [id])
+  replies     GroupReply[]
+}
+
+model GroupReply {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  postId    Int
+  content   String
+  reactions String    @default("{}")
+  isMuted   Boolean   @default(false)
+  reports   Int       @default(0)
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+  post      GroupPost @relation(fields: [postId], references: [id])
+}
+
+model DailyPrompt {
+  id        Int              @id @default(autoincrement())
+  date      String
+  question  String
+  responses PromptResponse[]
+}
+
+model PromptResponse {
+  id        Int         @id @default(autoincrement())
+  userId    Int
+  promptId  Int
+  content   String
+  reactions String      @default("{}")
+  isMuted   Boolean     @default(false)
+  reports   Int         @default(0)
+  createdAt DateTime    @default(now())
+  user      User        @relation(fields: [userId], references: [id])
+  prompt    DailyPrompt @relation(fields: [promptId], references: [id])
+
+  @@unique([userId, promptId])
+}
+
+model Challenge {
+  id           Int              @id @default(autoincrement())
+  title        String
+  description  String
+  emoji        String
+  durationDays Int
+  startDate    String
+  entries      ChallengeEntry[]
+}
+
+model ChallengeEntry {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  challengeId Int
+  dayNumber   Int
+  note        String?
+  completedAt DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+  challenge   Challenge @relation(fields: [challengeId], references: [id])
+
+  @@unique([userId, challengeId, dayNumber])
+}
+
+model ContentReport {
+  id         Int      @id @default(autoincrement())
+  reporterId Int
+  targetType String
+  targetId   Int
+  reason     String
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [reporterId], references: [id])
+}
+
+model SharedAchievement {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  achievement String
+  emoji       String
+  reactions   String   @default("{}")
+  createdAt   DateTime @default(now())
+}

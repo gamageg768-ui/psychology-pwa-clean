@@ -8,27 +8,38 @@ datasource db {
 }
 
 model User {
-  id               Int               @id @default(autoincrement())
-  name             String
-  email            String            @unique
-  createdAt        DateTime          @default(now())
-  sessions         TherapySession[]
-  moodLogs         MoodLog[]
-  journals         JournalEntry[]
-  assessments      Assessment[]
-  gratitudeEntries GratitudeEntry[]
-  sleepLogs        SleepLog[]
-  habits           Habit[]
-  thoughtRecords   ThoughtRecord[]
-  safetyPlan       SafetyPlan?
-  anonName         AnonName?
-  communityPosts   CommunityPost[]
-  groupMemberships GroupMembership[]
-  groupPosts       GroupPost[]
-  groupReplies     GroupReply[]
-  promptResponses  PromptResponse[]
-  challengeEntries ChallengeEntry[]
-  reports          ContentReport[]
+  id                 Int                 @id @default(autoincrement())
+  name               String
+  email              String              @unique
+  createdAt          DateTime            @default(now())
+  sessions           TherapySession[]
+  moodLogs           MoodLog[]
+  journals           JournalEntry[]
+  assessments        Assessment[]
+  gratitudeEntries   GratitudeEntry[]
+  sleepLogs          SleepLog[]
+  habits             Habit[]
+  thoughtRecords     ThoughtRecord[]
+  safetyPlan         SafetyPlan?
+  anonName           AnonName?
+  communityPosts     CommunityPost[]
+  groupMemberships   GroupMembership[]
+  groupPosts         GroupPost[]
+  groupReplies       GroupReply[]
+  promptResponses    PromptResponse[]
+  challengeEntries   ChallengeEntry[]
+  reports            ContentReport[]
+  pulseLogs          PulseLog[]
+  goals              Goal[]
+  medications        Medication[]
+  symptomLogs        SymptomLog[]
+  trustedContacts    TrustedContact[]
+  crisisEvents       CrisisEvent[]
+  routines           Routine[]
+  courseProgresses   CourseProgress[]
+  meditationSessions MeditationSession[]
+  buddyMatchesA      BuddyMatch[]        @relation("BuddyMatchUser1")
+  buddyMatchesB      BuddyMatch[]        @relation("BuddyMatchUser2")
 }
 
 model TherapySession {
@@ -274,4 +285,162 @@ model SharedAchievement {
   emoji       String
   reactions   String   @default("{}")
   createdAt   DateTime @default(now())
+}
+
+model PulseLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  focus     Int
+  energy    Int
+  stress    Int
+  note      String?
+  aiInsight String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Goal {
+  id          Int             @id @default(autoincrement())
+  userId      Int
+  title       String
+  description String?
+  category    String          @default("general")
+  targetDate  String?
+  status      String          @default("active")
+  aiPlan      String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  milestones  GoalMilestone[]
+  user        User            @relation(fields: [userId], references: [id])
+}
+
+model GoalMilestone {
+  id          Int       @id @default(autoincrement())
+  goalId      Int
+  title       String
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  goal        Goal      @relation(fields: [goalId], references: [id])
+}
+
+model Medication {
+  id        Int             @id @default(autoincrement())
+  userId    Int
+  name      String
+  dosage    String
+  frequency String
+  timeOfDay String
+  notes     String?
+  isActive  Boolean         @default(true)
+  createdAt DateTime        @default(now())
+  logs      MedicationLog[]
+  user      User            @relation(fields: [userId], references: [id])
+}
+
+model MedicationLog {
+  id           Int        @id @default(autoincrement())
+  medicationId Int
+  date         String
+  taken        Boolean    @default(true)
+  sideEffects  String?
+  note         String?
+  createdAt    DateTime   @default(now())
+  medication   Medication @relation(fields: [medicationId], references: [id])
+}
+
+model SymptomLog {
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  energy           Int
+  appetite         Int
+  focus            Int
+  socialWithdraw   Int
+  physicalSymptoms String?
+  note             String?
+  aiInsight        String?
+  createdAt        DateTime @default(now())
+  user             User     @relation(fields: [userId], references: [id])
+}
+
+model TrustedContact {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  name      String
+  phone     String
+  relation  String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model CrisisEvent {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  note      String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Routine {
+  id        Int           @id @default(autoincrement())
+  userId    Int
+  name      String
+  type      String        @default("morning")
+  emoji     String        @default("☀️")
+  createdAt DateTime      @default(now())
+  steps     RoutineStep[]
+  user      User          @relation(fields: [userId], references: [id])
+}
+
+model RoutineStep {
+  id        Int     @id @default(autoincrement())
+  routineId Int
+  stepOrder Int
+  activity  String
+  duration  Int     @default(5)
+  routine   Routine @relation(fields: [routineId], references: [id])
+}
+
+model CourseProgress {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  courseId    String
+  stepsDone   String    @default("[]")
+  completed   Boolean   @default(false)
+  quizScore   Int?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@unique([userId, courseId])
+}
+
+model MeditationSession {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  type      String
+  duration  Int
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model BuddyMatch {
+  id        Int            @id @default(autoincrement())
+  user1Id   Int
+  user2Id   Int
+  area      String
+  status    String         @default("active")
+  createdAt DateTime       @default(now())
+  messages  BuddyMessage[]
+  user1     User           @relation("BuddyMatchUser1", fields: [user1Id], references: [id])
+  user2     User           @relation("BuddyMatchUser2", fields: [user2Id], references: [id])
+}
+
+model BuddyMessage {
+  id        Int        @id @default(autoincrement())
+  matchId   Int
+  senderId  Int
+  content   String
+  createdAt DateTime   @default(now())
+  match     BuddyMatch @relation(fields: [matchId], references: [id])
 }

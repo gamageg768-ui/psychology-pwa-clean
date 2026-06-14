@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Brain, Activity, BookOpen, TrendingUp, Wrench, User, Sun, Moon, BarChart2, Heart, CheckSquare, Lightbulb, Users } from 'lucide-react';
+import {
+  Brain, Activity, BookOpen, TrendingUp, Wrench, User, Sun, Moon, BarChart2,
+  Heart, CheckSquare, Lightbulb, Users, Target, Pill, Zap, Stethoscope,
+  Mail, BookMarked, Phone, Dumbbell,
+} from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import BottomNav from './BottomNav';
 
@@ -11,12 +15,21 @@ const NAV_ITEMS = [
   { id: 'therapy', label: 'AI Therapy', icon: <Brain size={18} /> },
   { id: 'mood', label: 'Mood', icon: <Activity size={18} /> },
   { id: 'journal', label: 'Journal', icon: <BookOpen size={18} /> },
+  { id: 'pulse', label: 'Daily Pulse', icon: <Zap size={18} /> },
   { id: 'assessment', label: 'Assessments', icon: <TrendingUp size={18} /> },
   { id: 'tools', label: 'Wellness Tools', icon: <Wrench size={18} /> },
   { id: 'analytics', label: 'Analytics', icon: <BarChart2 size={18} /> },
   { id: 'gratitude', label: 'Gratitude', icon: <Heart size={18} /> },
   { id: 'habits', label: 'Habits', icon: <CheckSquare size={18} /> },
   { id: 'cbt', label: 'CBT', icon: <Lightbulb size={18} /> },
+  { id: 'goals', label: 'Goals', icon: <Target size={18} /> },
+  { id: 'medications', label: 'Medications', icon: <Pill size={18} /> },
+  { id: 'symptoms', label: 'Symptoms', icon: <Stethoscope size={18} /> },
+  { id: 'meditation', label: 'Meditation', icon: <Brain size={18} /> },
+  { id: 'routines', label: 'Routines', icon: <Dumbbell size={18} /> },
+  { id: 'courses', label: 'Skill Library', icon: <BookMarked size={18} /> },
+  { id: 'wellness-letter', label: 'Weekly Letter', icon: <Mail size={18} /> },
+  { id: 'contacts', label: 'Crisis & Contacts', icon: <Phone size={18} /> },
   { id: 'community', label: 'Community', icon: <Users size={18} /> },
   { id: 'profile', label: 'Profile', icon: <User size={18} /> },
 ];
@@ -26,8 +39,11 @@ const PAGE_TITLES: Record<string, string> = {
   journal: 'Journal', assessment: 'Assessments', tools: 'Wellness Tools',
   analytics: 'Analytics', gratitude: 'Gratitude Journal', sleep: 'Sleep Tracker',
   habits: 'Habit Tracker', cbt: 'CBT Thought Record', 'safety-plan': 'Safety Plan',
-  community: 'Community',
-  report: 'Weekly Report', profile: 'Profile',
+  community: 'Community', report: 'Weekly Report', profile: 'Profile',
+  pulse: 'Daily Pulse', goals: 'Wellness Goals', medications: 'Medications',
+  symptoms: 'Symptom Tracker', meditation: 'Meditation Rooms', routines: 'Daily Routines',
+  courses: 'Skill Library', 'wellness-letter': 'Weekly Letter', contacts: 'Crisis & Contacts',
+  buddy: 'Peer Buddy',
 };
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -57,7 +73,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   if (!mounted || !user) return null;
 
-  const current = pathname.slice(1).split('/')[0] || 'dashboard';
+  const segments = pathname.slice(1).split('/');
+  const current = segments[segments.length - 1] || segments[0] || 'dashboard';
 
   return (
     <div className="min-h-screen bg-mesh flex">

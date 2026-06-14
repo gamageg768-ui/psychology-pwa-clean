@@ -1,18 +1,30 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Activity, Sparkles } from 'lucide-react';
+import { Activity, Sparkles, ArrowRight, AlertCircle } from 'lucide-react';
 import { moodApi } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import { MoodLog } from '@/types';
 import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
 
 const EMOTIONS = ['Happy', 'Calm', 'Anxious', 'Sad', 'Angry', 'Excited', 'Tired', 'Hopeful', 'Frustrated', 'Grateful', 'Lonely', 'Overwhelmed'];
 const MOOD_LABELS = ['', 'Very Low', 'Low', 'Poor', 'Below Avg', 'Average', 'Fair', 'Good', 'Great', 'Excellent', 'Amazing'];
 const MOOD_COLORS = ['', '#ef4444','#f97316','#f59e0b','#eab308','#84cc16','#22c55e','#10b981','#06b6d4','#6366f1','#8b5cf6'];
 
+interface Intervention {
+  type: string;
+  title: string;
+  description: string;
+  href: string;
+  color: string;
+  emoji: string;
+}
+
 export default function MoodPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [mood, setMood] = useState(5);
   const [selectedEmotions, setSelectedEmotions] = useState<string[]>([]);
   const [note, setNote] = useState('');
@@ -20,6 +32,7 @@ export default function MoodPage() {
   const [loading, setLoading] = useState(false);
   const [insight, setInsight] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [interventions, setInterventions] = useState<Intervention[]>([]);
 
   useEffect(() => { loadMoods(); }, []);
 
@@ -34,13 +47,17 @@ export default function MoodPage() {
 
   const submit = async () => {
     if (!user) return;
-    setLoading(true); setSubmitted(false);
+    setLoading(true); setSubmitted(false); setInterventions([]);
     try {
       const res = await moodApi.log(user.id, mood, selectedEmotions, note);
       setInsight(res.data.ai_insight);
       setSubmitted(true);
       setNote(''); setSelectedEmotions([]);
       loadMoods();
+      if (mood <= 6) {
+        const intRes = await axios.get(`/api/interventions/suggest?user_id=${user.id}&mood=${mood}`);
+        setInterventions(intRes.data.interventions ?? []);
+      }
     } catch {
       setInsight('Could not get AI insight. Check backend connection.');
       setSubmitted(true);
@@ -59,7 +76,6 @@ export default function MoodPage() {
         <div className="space-y-4">
           <div className="card space-y-5">
 
-            {/* Score indicator */}
             <div className="text-center">
               <div className="relative inline-flex items-center justify-center mb-3">
                 <svg width="88" height="88" viewBox="0 0 88 88" className="-rotate-90">
@@ -82,16 +98,13 @@ export default function MoodPage() {
               </div>
             </div>
 
-            {/* Emotions */}
             <div>
               <div className="text-sm font-medium mb-2.5" style={{ color: 'var(--text-secondary)' }}>Emotions</div>
               <div className="flex flex-wrap gap-2">
                 {EMOTIONS.map(e => (
                   <button key={e} onClick={() => toggleEmotion(e)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      selectedEmotions.includes(e)
-                        ? 'bg-indigo-500 text-white'
-                        : ''
+                      selectedEmotions.includes(e) ? 'bg-indigo-500 text-white' : ''
                     }`}
                     style={!selectedEmotions.includes(e)
                       ? { background: 'var(--subtle-bg)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }
@@ -102,7 +115,6 @@ export default function MoodPage() {
               </div>
             </div>
 
-            {/* Note */}
             <div>
               <div className="text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Note <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(optional)</span></div>
               <textarea value={note} onChange={e => setNote(e.target.value)}
@@ -123,6 +135,27 @@ export default function MoodPage() {
                 <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>AI Insight from Dr. Aria</span>
               </div>
               <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{insight}</p>
+            </div>
+          )}
+
+          {interventions.length > 0 && (
+            <div className="card space-y-3">
+              <div className="flex items-center gap-2 mb-1">
+                <AlertCircle size={14} style={{ color: '#f59e0b' }} />
+                <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Suggested for You Right Now</span>
+              </div>
+              {interventions.map(iv => (
+                <button key={iv.type} onClick={() => router.push(iv.href)}
+                  className="w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all"
+                  style={{ background: `${iv.color}15`, border: `1px solid ${iv.color}30` }}>
+                  <span className="text-xl flex-shrink-0">{iv.emoji}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold" style={{ color: iv.color }}>{iv.title}</div>
+                    <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{iv.description}</div>
+                  </div>
+                  <ArrowRight size={14} style={{ color: iv.color, flexShrink: 0 }} />
+                </button>
+              ))}
             </div>
           )}
         </div>

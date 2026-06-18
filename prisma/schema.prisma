@@ -40,6 +40,7 @@ model User {
   meditationSessions MeditationSession[]
   buddyMatchesA      BuddyMatch[]        @relation("BuddyMatchUser1")
   buddyMatchesB      BuddyMatch[]        @relation("BuddyMatchUser2")
+  pressureLogs       PressureLog[]
 }
 
 model TherapySession {
@@ -443,4 +444,16 @@ model BuddyMessage {
   content   String
   createdAt DateTime   @default(now())
   match     BuddyMatch @relation(fields: [matchId], references: [id])
+}
+
+model PressureLog {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  technique      String
+  pressureBefore Int
+  pressureAfter  Int
+  content        String?
+  aiResponse     String?
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id])
 }

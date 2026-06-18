@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import {
   Brain, Activity, BookOpen, TrendingUp, Wrench, User, Sun, Moon, BarChart2,
   Heart, CheckSquare, Lightbulb, Users, Target, Pill, Zap, Stethoscope,
-  Mail, BookMarked, Phone, Dumbbell,
+  Mail, BookMarked, Phone, Dumbbell, Flame,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import BottomNav from './BottomNav';
@@ -29,6 +29,7 @@ const NAV_ITEMS = [
   { id: 'routines', label: 'Routines', icon: <Dumbbell size={18} /> },
   { id: 'courses', label: 'Skill Library', icon: <BookMarked size={18} /> },
   { id: 'wellness-letter', label: 'Weekly Letter', icon: <Mail size={18} /> },
+  { id: 'pressure-release', label: 'Pressure Release', icon: <Flame size={18} /> },
   { id: 'contacts', label: 'Crisis & Contacts', icon: <Phone size={18} /> },
   { id: 'community', label: 'Community', icon: <Users size={18} /> },
   { id: 'profile', label: 'Profile', icon: <User size={18} /> },
@@ -44,6 +45,7 @@ const PAGE_TITLES: Record<string, string> = {
   symptoms: 'Symptom Tracker', meditation: 'Meditation Rooms', routines: 'Daily Routines',
   courses: 'Skill Library', 'wellness-letter': 'Weekly Letter', contacts: 'Crisis & Contacts',
   buddy: 'Peer Buddy',
+  'pressure-release': 'Pressure Release',
 };
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {

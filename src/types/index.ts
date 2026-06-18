@@ -158,6 +158,17 @@ export interface MeditationSession {
   created_at: string;
 }
 
+// Pressure Release
+export interface PressureLog {
+  id: number;
+  technique: string;
+  pressure_before: number;
+  pressure_after: number;
+  content?: string;
+  ai_response?: string;
+  created_at: string;
+}
+
 // Feature #8: Buddy
 export interface BuddyMessage {
   id: number;

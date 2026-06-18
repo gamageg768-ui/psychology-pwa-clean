@@ -160,3 +160,10 @@ export const buddyApi = {
   sendMessage: (match_id: number, sender_id: number, content: string) =>
     api.post(`/community/buddy/${match_id}/messages`, { sender_id, content }),
 };
+
+// Pressure Release
+export const pressureApi = {
+  log: (user_id: number, technique: string, pressure_before: number, pressure_after: number, content?: string) =>
+    api.post('/pressure-release', { user_id, technique, pressure_before, pressure_after, content }),
+  list: (user_id: number) => api.get(`/pressure-release?user_id=${user_id}`),
+};

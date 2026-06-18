@@ -4,7 +4,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import {
   Brain, Activity, BookOpen, TrendingUp, Wrench, User, BarChart2,
   Heart, CheckSquare, Lightbulb, Users, Target, Pill, Zap, Stethoscope,
-  Mail, BookMarked, Phone, Dumbbell,
+  Mail, BookMarked, Phone, Dumbbell, Flame,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -26,6 +26,7 @@ const NAV_ITEMS = [
   { id: 'cbt', label: 'CBT', icon: <Lightbulb size={20} /> },
   { id: 'wellness-letter', label: 'Letter', icon: <Mail size={20} /> },
   { id: 'tools', label: 'Tools', icon: <Wrench size={20} /> },
+  { id: 'pressure-release', label: 'Release', icon: <Flame size={20} /> },
   { id: 'contacts', label: 'Crisis', icon: <Phone size={20} /> },
   { id: 'community', label: 'Community', icon: <Users size={20} /> },
   { id: 'profile', label: 'Profile', icon: <User size={20} /> },

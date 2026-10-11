@@ -3,5 +3,10 @@ node_modules/
 .env
 .env.local
 prisma/psychology.db
+prisma/prisma/psychology.db
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
 public/sw.js
 public/workbox-*.js

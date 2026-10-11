@@ -428,13 +428,13 @@ model MeditationSession {
 model BuddyMatch {
   id        Int            @id @default(autoincrement())
   user1Id   Int
-  user2Id   Int
+  user2Id   Int?
   area      String
   status    String         @default("active")
   createdAt DateTime       @default(now())
   messages  BuddyMessage[]
   user1     User           @relation("BuddyMatchUser1", fields: [user1Id], references: [id])
-  user2     User           @relation("BuddyMatchUser2", fields: [user2Id], references: [id])
+  user2     User?          @relation("BuddyMatchUser2", fields: [user2Id], references: [id])
 }
 
 model BuddyMessage {

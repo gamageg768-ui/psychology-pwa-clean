@@ -183,6 +183,7 @@ export interface BuddyMatch {
   area: string;
   status: string;
   partner_name: string;
+  last_message?: string | null;
   created_at: string;
   messages?: BuddyMessage[];
 }

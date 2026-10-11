@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   });
 
   const result = await Promise.all(matches.map(async (m) => {
-    const partnerId = m.user1Id === userId ? m.user2Id : m.user1Id;
+    const partnerId = m.user1Id === userId ? (m.user2Id ?? m.user1Id) : m.user1Id;
     const partner = await prisma.anonName.findUnique({ where: { userId: partnerId } });
     return {
       id: m.id, area: m.area, status: m.status, created_at: m.createdAt,
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
   if (existingMatch) return NextResponse.json({ id: existingMatch.id, matched: true, existing: true });
 
   const potentialMatch = await prisma.buddyMatch.findFirst({
-    where: { user2Id: 0, area, status: 'waiting' },
+    where: { user2Id: null, area, status: 'waiting' },
   });
 
   if (potentialMatch && potentialMatch.user1Id !== user_id) {
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
   }
 
   const pending = await prisma.buddyMatch.create({
-    data: { user1Id: user_id, user2Id: 0, area, status: 'waiting' },
+    data: { user1Id: user_id, user2Id: null, area, status: 'waiting' },
   });
   return NextResponse.json({ id: pending.id, matched: false, message: 'Searching for a buddy. Check back soon.' });
 }

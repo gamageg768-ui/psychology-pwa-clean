@@ -1,22 +1,33 @@
-const OLLAMA_URL = process.env.OLLAMA_URL ?? 'http://localhost:11434';
-const MODEL = process.env.OLLAMA_MODEL ?? 'gemma3:1b';
+const GROQ_API_KEY = process.env.GROQ_API_KEY ?? '';
+const MODEL = process.env.GROQ_MODEL ?? 'llama-3.3-70b-versatile';
+const GROQ_BASE = 'https://api.groq.com/openai/v1';
 
 type ChatMessage = { role: string; content: string };
+
+async function groqChat(messages: ChatMessage[]): Promise<string> {
+  const res = await fetch(`${GROQ_BASE}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({ model: MODEL, messages }),
+    signal: AbortSignal.timeout(60000),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Groq error ${res.status}: ${err}`);
+  }
+  const data = await res.json();
+  return data.choices[0].message.content as string;
+}
 
 export async function ollamaChat(messages: ChatMessage[], systemPrompt = ''): Promise<string> {
   try {
     const allMessages = systemPrompt
       ? [{ role: 'system', content: systemPrompt }, ...messages]
       : messages;
-    const res = await fetch(`${OLLAMA_URL}/api/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: MODEL, messages: allMessages, stream: false }),
-      signal: AbortSignal.timeout(120000),
-    });
-    if (!res.ok) throw new Error(`Ollama error: ${res.status}`);
-    const data = await res.json();
-    return data.message.content as string;
+    return await groqChat(allMessages);
   } catch (e) {
     return `AI service temporarily unavailable: ${(e as Error).message}`;
   }
@@ -24,23 +35,17 @@ export async function ollamaChat(messages: ChatMessage[], systemPrompt = ''): Pr
 
 export async function ollamaGenerate(prompt: string): Promise<string> {
   try {
-    const res = await fetch(`${OLLAMA_URL}/api/generate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: MODEL, prompt, stream: false }),
-      signal: AbortSignal.timeout(120000),
-    });
-    if (!res.ok) throw new Error(`Ollama error: ${res.status}`);
-    const data = await res.json();
-    return data.response as string;
+    return await groqChat([{ role: 'user', content: prompt }]);
   } catch (e) {
     return `AI service temporarily unavailable: ${(e as Error).message}`;
   }
 }
 
 export async function ollamaHealthy(): Promise<boolean> {
+  if (!GROQ_API_KEY) return false;
   try {
-    const res = await fetch(`${OLLAMA_URL}/api/tags`, {
+    const res = await fetch(`${GROQ_BASE}/models`, {
+      headers: { 'Authorization': `Bearer ${GROQ_API_KEY}` },
       signal: AbortSignal.timeout(5000),
     });
     return res.ok;
